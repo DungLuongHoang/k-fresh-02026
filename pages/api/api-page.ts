@@ -9,6 +9,17 @@ import { Logger } from '@utilities/logger';
 
 /** Default login path for open-console. */
 export const LOGIN_PATH = '/api/v1/client/login';
+
+/**
+ * Subset of Playwright's `APIRequestContext.fetch` options that callers can
+ * pass directly to {@link APIPage.apiRequest}. Anything else passed as
+ * `requestBody` is treated as a raw payload and wrapped as `{ data: payload }`.
+ *
+ * Derived from Playwright's own fetch signature so it stays in sync if their
+ * options shape changes (e.g. tightening `multipart`).
+ */
+type FetchOptions = NonNullable<Parameters<APIRequestContext['fetch']>[1]>;
+type ApiRequestOptions = Pick<FetchOptions, 'data' | 'form' | 'multipart' | 'headers'>;
 export class APIPage {
   constructor(private requestContext?: APIRequestContext) { }
 
@@ -154,7 +165,7 @@ export class APIPage {
   private async apiRequest(
     path: string,
     method: string,
-    requestBody?: any,
+    requestBody?: unknown,
   ): Promise<APIResponse> {
     path = path.startsWith('/') ? path : `/${path}`;
     // Auto-inject __trace_id for every request so each call is individually traceable in server logs.
@@ -177,8 +188,9 @@ export class APIPage {
       extraHTTPHeaders: this.headers,
       ignoreHTTPSErrors: true,
     });
-    const options = (requestBody && (requestBody.data || requestBody.form || requestBody.multipart))
-      ? requestBody
+    const maybeOpts = requestBody as ApiRequestOptions | undefined;
+    const options: ApiRequestOptions = (maybeOpts && (maybeOpts.data || maybeOpts.form || maybeOpts.multipart))
+      ? maybeOpts
       : { data: requestBody };
 
     try {

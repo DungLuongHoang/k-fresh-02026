@@ -23,7 +23,7 @@ export class WishListLocators extends CommonLocators {
   btnRemoveByProduct!: (productName: string) => Locator;
   btnAddToCartByProduct!: (productName: string) => Locator;
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     this.divSuccessMessage = this.page.locator("//*[@id='notification-box-top']//div[contains(@class,'toast') and contains(@class,'show')]");
     this.lblSuccessMessage = this.page.locator("//*[@id='notification-box-top']//div[contains(@class,'toast-body')]//div[contains(@class,'d-flex')]");

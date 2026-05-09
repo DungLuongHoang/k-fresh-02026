@@ -1,0 +1,37 @@
+
+import { test } from '@pages/base-page';
+import { validUser } from '@data/user-data';
+import { validAppointment } from '@data/appointment-data';
+import { assertHelper } from '@utilities/assertions';
+
+const assertHelper = new AssertHelper();
+
+test.describe('Appointment Management', () => {
+
+  test('should create a new appointment successfully', async ({ loginPage, appointmentPage }) => {
+    // Login first
+    await loginPage.navigate();
+    await loginPage.login(validUser);
+
+    // Navigate to Appointment page
+    await appointmentPage.goto();
+
+    // Create new appointment
+    await appointmentPage.createAppointment(validAppointment);
+
+    // Verify appointment created successfully
+    await assertHelper.toBeVisible(appointmentPage.successMessage);
+  });
+
+  test('should search for an existing appointment', async ({ loginPage, appointmentPage }) => {
+    // Login first
+    await loginPage.navigate();
+    await loginPage.login(validUser);
+
+    // Search for the appointment
+    await appointmentPage.searchAppointment(validAppointment.patientName);
+
+    // Verify search result
+    await assertHelper.toBeVisible(appointmentPage.searchResultRow);
+  });
+});

@@ -20,7 +20,7 @@ export class AddressBookLocators extends CommonLocators {
   lnkAddressBook!: Locator;
   btnNewAddress!: Locator;
 
-  locatorsInitialization(): void {
+  override locatorsInitialization(): void {
     super.locatorInitialization();
     this.inputFirstName = this.page.locator('//input[@name="firstname"]');
     this.inputLastName = this.page.locator('//input[@name="lastname"]');

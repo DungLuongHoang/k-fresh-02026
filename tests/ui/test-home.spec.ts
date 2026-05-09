@@ -14,9 +14,12 @@ test.describe('Home Tests', () => {
     await registerPage.submitRegistrationForm();
   });
 
-  test('TC-WL-001: Access Wishlist page', async ({ homePage, commonPage }) => {
+  test('TC-WL-001: Access Wishlist page', async ({ homePage, commonPage, wishlistPage }) => {
     await commonPage.goto(Constants.BASE_URL);
     await homePage.clickWishListIcon();
+    // Confirms the icon click navigated to the wishlist route — without this
+    // the test would silently pass even if the icon stopped wiring up the link.
+    await wishlistPage.verifyOnWishlistPage();
   });
 
   test('TC-WL-002: Add Product to Wishlist', async ({ homePage, commonPage, wishlistPage }) => {

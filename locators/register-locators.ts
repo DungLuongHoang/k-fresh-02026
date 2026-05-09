@@ -34,7 +34,7 @@ export class RegisterLocators extends CommonLocators {
   lblErrorConfirmPassword!: Locator;
   lblErrorAgree!: Locator;
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     this.inputFirstName = this.page.locator('#input-firstname');
     this.inputLastName = this.page.locator('#input-lastname');

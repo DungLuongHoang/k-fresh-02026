@@ -1,0 +1,10 @@
+{
+  // Use the workspace's TypeScript (node_modules/typescript@6.0.3) instead of
+  // the IDE's bundled version. The bundled TS is older and rejects
+  // `"ignoreDeprecations": "6.0"` (only `"5.0"` is recognised), even though
+  // the project's compiler accepts it. Without this setting the IDE flags
+  // tsconfig.json with `Invalid value for '--ignoreDeprecations'` while
+  // `npm run typecheck` passes cleanly.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

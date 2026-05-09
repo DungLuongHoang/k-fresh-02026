@@ -1,8 +1,8 @@
 import { test } from '@pages/base-page';
 import { Product } from '@models/product';
-import { getEnvProduct } from '@data/product.helper';
+import { getEnvProduct } from '@data/product-helper';
 import { Assertions } from '@utilities/assertions';
-import { Messages } from '@data/messages.data';
+import { Messages } from '@data/messages-data';
 
 const product: Product = getEnvProduct();
 
@@ -66,14 +66,16 @@ test.describe('Cart API Module - Comprehensive Testing', () => {
 
     const updatedQuantity = 3;
     const startTime = Date.now();
+    // OpenCart's `checkout/cart/edit` expects form-urlencoded data shaped as
+    // `quantity[<cartItemKey>]=<value>` (array-style key); a JSON body of
+    // `{ key, quantity }` is silently ignored and the cart stays at qty 1.
     const response = await apiPage.apiPostRequest('index.php?route=checkout/cart/edit', undefined, {
-      data: {
-        key: cartItemKey,
-        quantity: updatedQuantity,
+      form: {
+        [`quantity[${cartItemKey}]`]: updatedQuantity,
       },
       headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     });
     const responseTime = Date.now() - startTime;
 
@@ -87,6 +89,17 @@ test.describe('Cart API Module - Comprehensive Testing', () => {
 
     // 3. Data size
     Assertions.assertToBeGreaterThan(responseBodyString.length, 0, 'Response body should not be empty');
+
+    // 6. Side effect — re-fetch the FULL cart page and assert the line item
+    // actually carries the new quantity. We hit `checkout/cart` (not the
+    // `common/cart/info` mini-cart fragment) because `verifyUpdatedProductQuantity`
+    // reads the per-row quantity input + total cell, which only exist in the
+    // main cart table — the mini-cart's last `<td>` is the remove-button cell
+    // and would crash `Currency.parseCurrency` on an empty string.
+    // Without this re-fetch the test would still pass even if the edit endpoint silently no-op'd.
+    const verifyResponse = await apiPage.apiGetRequest('index.php?route=checkout/cart');
+    await cartPage.page.setContent(await verifyResponse.text());
+    await cartPage.verifyUpdatedProductQuantity({ ...product, quantity: updatedQuantity });
   });
 
   test('TC03 - Remove product from cart', async ({ apiPage, cartPage }) => {
@@ -133,5 +146,12 @@ test.describe('Cart API Module - Comprehensive Testing', () => {
       Messages.UPDATE_CART_SUCCESS_MESSAGE,
       'Success message for remove should be correct'
     );
+
+    // 6. Side effect — re-fetch the cart info HTML and assert the product is
+    // gone. Without this the test would still pass if the remove endpoint
+    // silently no-op'd.
+    const verifyResponse = await apiPage.apiGetRequest('index.php?route=common/cart/info');
+    await cartPage.page.setContent(await verifyResponse.text());
+    await cartPage.verifyProductRemovedFromCart(product);
   });
 });

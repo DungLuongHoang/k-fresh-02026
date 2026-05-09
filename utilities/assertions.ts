@@ -492,7 +492,7 @@ export class Assertions {
         maskChar: '*' | 'X' = '*',
         message?: string,
     ): void {
-        const pattern = new RegExp(`^\\d{6}[${maskChar}\\s]+\\d{4}$`);
+        const pattern = new RegExp(String.raw`^\d{6}[${maskChar}\s]+\d{4}$`);
         expect.soft(actualCard, message).toMatch(pattern);
     }
 
@@ -844,7 +844,7 @@ export class Assertions {
         schema.date?.forEach((key) => {
             const val = obj[key] as string;
             const isValid =
-                typeof val === 'string' && !isNaN(Date.parse(val));
+                typeof val === 'string' && !Number.isNaN(Date.parse(val));
             checkType(key, isValid, 'valid date string');
         });
     }

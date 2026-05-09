@@ -396,7 +396,13 @@ export class Generate {
      * @returns
      */
     generateRandomFloat(min?: number, max?: number, precision?: number): number {
-        return faker.number.float({ min: min, max: max, fractionDigits: precision });
+        // Build the options object without the undefined keys — `exactOptionalPropertyTypes: true`
+        // rejects `{ min: undefined }` against `{ min?: number }`.
+        const opts: { min?: number; max?: number; fractionDigits?: number } = {};
+        if (min !== undefined) opts.min = min;
+        if (max !== undefined) opts.max = max;
+        if (precision !== undefined) opts.fractionDigits = precision;
+        return faker.number.float(opts);
     }
 
     /**

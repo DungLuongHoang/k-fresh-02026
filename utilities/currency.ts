@@ -12,14 +12,14 @@ export class Currency {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits,
-      maximumFractionDigits, 
+      maximumFractionDigits,
     }).format(amount);
   }
 
   /**
    * Parse currency string to number
-   * @param currencyString 
-   * @returns 
+   * @param currencyString
+   * @returns
    * ex: "$1,234,567.50" => 1234567.5
    */
   static parseCurrency(currencyString: string): number {

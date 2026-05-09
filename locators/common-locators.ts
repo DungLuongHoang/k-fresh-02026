@@ -35,6 +35,14 @@ export class CommonLocators {
     ddlOptionItem!: (option: string) => Locator;
     linkText!: (name: string) => Locator;
 
+    // Ant Design popovers / popconfirms / modals — kept centrally so that
+    // CommonPage helpers don't inline framework selectors.
+    antPopover!: Locator;
+    antModalConfirm!: Locator;
+    antPopoverOkButton!: Locator;
+    antModalOkButton!: Locator;
+    antPopupOrModalOkButton!: Locator;
+
     Iframe1!: FrameLocator;
     Iframe2!: FrameLocator;
     Iframe3!: FrameLocator;
@@ -73,6 +81,19 @@ export class CommonLocators {
 
         this.chkAgreeTerms = this.page.locator('label[for="input-agree"]');
 
+        // Ant Design framework selectors used by CommonPage helpers.
+        this.antPopover = this.page.locator('.ant-popover, .ant-popconfirm').first();
+        this.antModalConfirm = this.page.locator('.ant-modal-confirm').first();
+        this.antPopoverOkButton = this.page
+            .locator('.ant-popover .ant-btn-primary, .ant-popconfirm .ant-btn-primary')
+            .first()
+            .or(this.page.locator('.ant-popover').getByRole('button', { name: 'OK' }));
+        this.antModalOkButton = this.page.locator('.ant-modal-confirm .ant-btn-primary').first();
+        this.antPopupOrModalOkButton = this.page
+            .locator('.ant-popover .ant-btn-primary, .ant-popconfirm .ant-btn-primary')
+            .first()
+            .or(this.page.locator('.ant-modal-confirm .ant-btn-primary').first())
+            .or(this.page.getByRole('button', { name: 'OK' }));
     }
 
     /**

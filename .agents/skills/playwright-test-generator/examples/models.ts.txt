@@ -1,0 +1,15 @@
+
+// models/user.ts
+export interface User {
+    username: string;
+    password: string;
+}
+
+// models/appointment.ts
+export interface Appointment {
+    date: string;
+    time: string;
+    patientName: string;
+    doctor: string;
+    notes?: string;
+}

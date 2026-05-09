@@ -63,7 +63,7 @@ export class CheckoutLocators extends CommonLocators {
     lblErrorShippingFirstName!: Locator;
     lblErrorShippingLastName!: Locator;
 
-    locatorInitialization(): void {
+    override locatorInitialization(): void {
         super.locatorInitialization();
 
         // --- BILLING SECTION ---

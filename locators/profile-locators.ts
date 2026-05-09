@@ -33,7 +33,7 @@ export class ProfileLocators extends CommonLocators {
     this.locatorInitialization();
   }
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     // My Account page locators
     this.hdrAccount = this.page.getByRole('heading', { name: 'My Account' });
@@ -81,5 +81,5 @@ export class ProfileLocators extends CommonLocators {
    */
   getDefaultAddressRadio = (value: DefaultAddressOption): Locator => {
     return this.page.locator(`input[name="default"][value="${value === 'yes' ? '1' : '0'}"]`);
-  }
+  };
 }

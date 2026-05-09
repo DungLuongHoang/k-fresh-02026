@@ -292,7 +292,7 @@ export const test = baseTest.extend<{
 ## 3. Directory Structure
 
 ```
-k-fresh-02026/
+ai-qa-training/
 │
 ├── 📁 locators/                   # Layer 1: Locator declarations (element selectors)
 │   ├── common-locators.ts         # Root class: shared locators & element-finding helpers

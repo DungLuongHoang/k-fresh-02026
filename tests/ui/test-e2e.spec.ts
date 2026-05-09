@@ -1,5 +1,5 @@
 import { test } from '@pages/base-page';
-import { user } from '@data/login.data';
+import { user } from '@data/login-data';
 import { Constants } from '@utilities/constants';
 
 test.describe('E2E Tests', () => {

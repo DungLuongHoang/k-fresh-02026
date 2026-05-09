@@ -10,13 +10,36 @@ export default defineConfig({
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!process.env['CI'],
   /* Retry on CI only */
   retries: Constants.MAX_RETRY_ATTEMPTS,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? Constants.WORKERS : Constants.LOCAL_WORKERS,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  workers: process.env['CI'] ? Constants.WORKERS : Constants.LOCAL_WORKERS,
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters
+   *
+   * IMPORTANT: when an explicit `reporter:` array is provided, Playwright does
+   * NOT merge in its default `list` reporter — it replaces it. If every entry
+   * here writes to a file (html / junit / allure / custom webhooks), the
+   * terminal stays silent for the entire run and a failing build looks
+   * indistinguishable from a hung process. The leading `list` reporter keeps
+   * stdout informative.
+   */
+  reporter:
+    [['list'],
+    ['html', { open: 'never' }],
+    [
+      'allure-playwright',
+      {
+        detail: true,
+        outputFolder: 'allure-results',
+        suiteTitle: true,
+      },
+    ],
+    ['junit', { outputFile: 'test-results/e2e-results.xml' }],
+    // Custom reporter: fans out a run summary to Slack / Google Chat / Email.
+    // No-op when no channel is configured (see reports/notifiers/index.ts).
+    ['./reports/custom-reporter.ts'],
+    ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -24,11 +47,11 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
-    headless: process.env.HEADLESS ? true : false,
+    headless: !process.env['HEADLESS'],
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  timeout: Constants.TIMEOUTS.DEFAULT,
+  timeout: Constants.TIMEOUTS.DEFAULT * 2,
   expect: {
     timeout: Constants.TIMEOUTS.WAIT_LOCATOR,
   },

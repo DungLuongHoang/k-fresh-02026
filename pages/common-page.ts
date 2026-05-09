@@ -555,8 +555,12 @@ export class CommonPage extends CommonLocators {
         await this.ddlOption.waitFor({ state: 'visible' });
         await Utility.delay(1);
         const eles = await this.ddlOption.all();
-        await eles[index].scrollIntoViewIfNeeded();
-        await this.click(eles[index]);
+        const target = eles[index];
+        if (!target) {
+            throw new Error(`Dropdown option at index ${index} not found (only ${eles.length} option(s) available).`);
+        }
+        await target.scrollIntoViewIfNeeded();
+        await this.click(target);
     }
 
     /**
@@ -605,10 +609,10 @@ export class CommonPage extends CommonLocators {
 
                 let style: CSSStyleDeclaration;
                 if (pseudoElement && pseudoElement !== '') {
-                    style = window.getComputedStyle(element, pseudoElement);
+                    style = globalThis.getComputedStyle(element, pseudoElement);
                 }
                 else {
-                    style = window.getComputedStyle(element);
+                    style = globalThis.getComputedStyle(element);
                 }
                 return style.getPropertyValue(styleValue);
             }, params
@@ -624,13 +628,21 @@ export class CommonPage extends CommonLocators {
      */
     @step('Convert Rgb to Hex')
     convertRgbToHex(color: string = ''): string {
-        const [r, g, b] = color.match(/\d+/g)?.map(Number) ?? [];
+        // `color.match(...)` returns `string[] | null`; defaulting each component
+        // to 0 keeps the helper total-functional even when the input is empty or
+        // doesn't match the rgb shape (e.g. "transparent").
+        const [r = 0, g = 0, b = 0] = color.match(/\d+/g)?.map(Number) ?? [];
         return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     }
 
     /**
-     * Wait for a period of time (in seconds)
-     * @param timeout
+     * Wait for a period of time (in seconds).
+     *
+     * @deprecated Hard sleeps cause flakiness. Prefer Playwright auto-waiting via locator
+     * actions, `expect(locator).toBeVisible()`, `expect.poll(...)`, or `assertHelper.assertElementVisible(...)`.
+     * Existing call sites should be migrated to deterministic waits over time.
+     *
+     * @param timeout - seconds
      */
     @step('Wait for a period of time')
     async waitFor(timeout: number): Promise<void> {
@@ -639,8 +651,12 @@ export class CommonPage extends CommonLocators {
 
     /**
      * Wait for a period of time in milliseconds.
-     * Prefer this over getPage().waitForTimeout(ms) so all waits go through CommonPage.
-     * @param ms
+     *
+     * @deprecated Hard sleeps cause flakiness. Prefer Playwright auto-waiting via locator
+     * actions, `expect(locator).toBeVisible()`, `expect.poll(...)`, or `assertHelper.assertElementVisible(...)`.
+     * Existing call sites should be migrated to deterministic waits over time.
+     *
+     * @param ms - milliseconds
      */
     @step('Wait for milliseconds')
     async waitForMillis(ms: number): Promise<void> {
@@ -678,22 +694,16 @@ export class CommonPage extends CommonLocators {
         successText: string | RegExp = /delete.*success|Delete successfully!/i,
         timeoutMs: number = 15000
     ): Promise<void> {
-        const popconfirm = this.page.locator('.ant-popover, .ant-popconfirm').first();
-        await expect(popconfirm).toBeVisible({ timeout: timeoutMs });
+        await expect(this.antPopover).toBeVisible({ timeout: timeoutMs });
 
         const textPromise = this.page.getByText(successText).first()
             .waitFor({ state: 'visible', timeout: timeoutMs })
             .catch(() => null);
 
-        const okBtn = this.page.locator('.ant-popover .ant-btn-primary, .ant-popconfirm .ant-btn-primary').first()
-            .or(this.page.locator('.ant-popover').getByRole('button', { name: 'OK' }));
-        await expect(okBtn).toBeVisible({ timeout: timeoutMs });
-        await okBtn.click();
+        await expect(this.antPopoverOkButton).toBeVisible({ timeout: timeoutMs });
+        await this.antPopoverOkButton.click();
 
-        const result = await textPromise;
-        if (!result) {
-            await this.waitForMillis(2000);
-        }
+        await textPromise;
     }
 
     /**
@@ -707,21 +717,14 @@ export class CommonPage extends CommonLocators {
         successText: string | RegExp = /end.*success|End successfully!/i,
         timeoutMs: number = 15000
     ): Promise<void> {
-        const modal = this.page.locator('.ant-modal-confirm').first();
-        await expect(modal).toBeVisible({ timeout: timeoutMs });
+        await expect(this.antModalConfirm).toBeVisible({ timeout: timeoutMs });
 
-        const textPromise = this.page.getByText(successText).first()
+        await this.page.getByText(successText).first()
             .waitFor({ state: 'visible', timeout: timeoutMs })
             .catch(() => null);
 
-        const okBtn = modal.locator('.ant-btn-primary').first();
-        await expect(okBtn).toBeVisible({ timeout: timeoutMs });
-        await okBtn.click();
-
-        const result = await textPromise;
-        if (!result) {
-            await this.waitForMillis(2000);
-        }
+        await expect(this.antModalOkButton).toBeVisible({ timeout: timeoutMs });
+        await this.antModalOkButton.click();
     }
 
     /**
@@ -735,21 +738,10 @@ export class CommonPage extends CommonLocators {
         successText: string | RegExp = /end.*success|End successfully!/i,
         timeoutMs: number = 15000
     ): Promise<void> {
-        const textPromise = this.page.getByText(successText).first()
-            .waitFor({ state: 'visible', timeout: timeoutMs })
-            .catch(() => null);
+        await expect(this.page.getByText(successText).first()).toBeVisible({ timeout: timeoutMs });
 
-        const okBtn = this.page.locator('.ant-popover .ant-btn-primary, .ant-popconfirm .ant-btn-primary').first()
-            .or(this.page.locator('.ant-modal-confirm .ant-btn-primary').first())
-            .or(this.page.getByRole('button', { name: 'OK' }));
-
-        await expect(okBtn).toBeVisible({ timeout: timeoutMs });
-        await okBtn.click();
-
-        const result = await textPromise;
-        if (!result) {
-            await this.waitForMillis(2000);
-        }
+        await expect(this.antPopupOrModalOkButton).toBeVisible({ timeout: timeoutMs });
+        await this.antPopupOrModalOkButton.click();
     }
 
     /**

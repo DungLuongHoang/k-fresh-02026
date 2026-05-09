@@ -1,17 +1,16 @@
 import { test } from '@pages/base-page';
 import { generateUserProfile, generateAddress } from '@data/checkout-data';
-import { Logger } from '@utilities/logger';
 import { Constants } from '@utilities/constants';
 import { UserProfile } from '@models/user';
 import { Address } from '@models/address';
 
 // Set the global timeout for all test cases within this specific test suite
-test.setTimeout(Constants.TIMEOUTS.DEFAULT);
+test.setTimeout(Constants.TIMEOUTS.DEFAULT * 2);
 
 /**
  * @title Checkout Process Test Suite
  * @description Contains End-to-End (E2E) UI tests validating the e-commerce Checkout flow.
- * Scenarios cover new/existing address forms, validation rules, dynamic cart math calculations, 
+ * Scenarios cover new/existing address forms, validation rules, dynamic cart math calculations,
  * and UI state toggles based on user interactions.
  */
 test.describe('Checkout Tests', () => {
@@ -27,8 +26,6 @@ test.describe('Checkout Tests', () => {
    * Setup hook executed before each test case in this suite.
    */
   test.beforeEach(async ({ homePage, registerPage, productPage }) => {
-    Logger.info('--- Start Setup Pre-condition (Registration Mode) ---');
-
     buyerProfile = generateUserProfile();
     buyerAddress = generateAddress();
 

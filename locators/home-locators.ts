@@ -12,7 +12,8 @@ export class HomeLocators extends CommonLocators {
     iconWishList!: Locator;
     divSuccessAlert!: Locator;
     spanSuccessAlertMessage!: Locator;
-    btnWishlistInToast!: Locator
+    btnWishlistInToast!: Locator;
+    btnViewCartInToast!: Locator;
     lblProductCards!: (index: number) => Locator;
     lnkProductName!: (index: number) => Locator;
     btnAddToWishlist!: (index: number) => Locator;
@@ -29,12 +30,19 @@ export class HomeLocators extends CommonLocators {
     lnkRegister!: Locator;
     ddlMyAccount!: Locator;
     lnkMyAccountLogin!: Locator;
-    locatorInitialization(): void {
+    override locatorInitialization(): void {
         super.locatorInitialization();
         this.iconWishList = this.page.locator("//a[@aria-label='Wishlist']");
         this.btnWishlistInToast = this.page.locator("(//div[@id='notification-box-top']//a[contains(@href,'wishlist')])[2]");
         this.divSuccessAlert = this.page.locator("//div[@id='notification-box-top']//*[@role='alert']");
         this.spanSuccessAlertMessage = this.page.locator("//div[@id='notification-box-top']//div[contains(@class,'toast-body')]");
+        // The toast that appears after `hoverAndAddToCart` on the homepage exposes
+        // a "View Cart" link distinct from the "Wishlist" link. Match it inside
+        // the notification container so we don't accidentally pick up the cart
+        // dropdown's own View Cart link in the header.
+        this.btnViewCartInToast = this.page.locator(
+            "//div[@id='notification-box-top']//a[normalize-space()='View Cart']",
+        );
         this.lblProductCards = (index: number) => this.page.locator(`(//div[contains(@class,'product-thumb')])[${index + 1}]`);
         this.lnkProductName = (index: number) => this.page.locator(`(//div[contains(@class,'product-thumb')])[${index + 1}]//h4//a`);
         this.btnAddToWishlist = (index: number) => this.page.locator(`(//div[contains(@class,'product-thumb')])[${index + 1}]//button[contains(@onclick,'wishlist.add')]`);

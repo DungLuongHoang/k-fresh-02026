@@ -4,7 +4,7 @@ import {
   createRegisterData,
   createStrongPassword,
   createUpdateProfileData,
-} from '@data/user.helper';
+} from '@data/user-helper';
 import { Constants } from '@utilities/constants';
 import type { UserProfile } from '@models/user';
 import { generateUserProfileData } from '@data/user-data';
@@ -71,6 +71,7 @@ test.describe('TC005 - Change Password', () => {
     commonPage,
     registerPage,
     profilePage,
+    loginPage,
   }) => {
     const registerData = createRegisterData();
     const changedPassword = createStrongPassword();
@@ -94,5 +95,16 @@ test.describe('TC005 - Change Password', () => {
     await profilePage.changePassword(changedPassword);
     await profilePage.verifyMyAccountPage();
     await profilePage.expectChangePasswordSuccessMessage();
+
+    // Round-trip the new password: a "success" message alone proves only that
+    // the form was accepted, not that the credential actually changed in the
+    // backing store. Logging out and back in with the new password is the
+    // smallest assertion that exercises the real outcome.
+    await profilePage.logout();
+    await profilePage.verifyLogoutPage();
+    await profilePage.continueAfterLogout();
+    await profilePage.verifyLogoutRedirectPage();
+
+    await loginPage.login({ email: registerData.email, password: changedPassword });
   });
 });

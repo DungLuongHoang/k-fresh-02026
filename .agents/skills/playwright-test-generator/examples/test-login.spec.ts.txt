@@ -1,0 +1,22 @@
+
+import { test } from '@pages/base-page';
+import { validUser } from '@data/user-data';
+import { AssertHelper } from '@utilities/assertions';
+
+const assertHelper = new AssertHelper();
+
+test.describe('Login Tests', () => {
+  test('should login successfully with valid credentials',
+  {
+    tag: ['@smoke-test']
+  }, async ({ loginPage }) => {
+    // Navigate to login page
+    await loginPage.navigate();
+
+    // Perform login
+    await loginPage.login(validUser);
+
+    // Verify successful login (logout button is visible)
+    await assertHelper.toBeVisible(loginPage.btnLogout);
+  });
+});

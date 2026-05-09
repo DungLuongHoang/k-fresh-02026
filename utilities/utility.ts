@@ -32,7 +32,7 @@ export class Utility {
         if (end > text.length) end = text.length;
         try {
             return text.substring(start, end);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
             return '';
         }
@@ -61,7 +61,7 @@ export class Utility {
      * @returns
      */
     static filterItemInArray(array: any, filterKey: string): any {
-        const filteredData = array.filter((item: string) => {
+        const filteredData = array.find((item: string) => {
             return Object.entries(item)
                 .every(([key]) => key === filterKey);
         }
@@ -115,8 +115,11 @@ export class Utility {
      * @returns
      */
     static getRandomElementInArray<T>(arr: T[]): T {
+        if (arr.length === 0) {
+            throw new Error('getRandomElementInArray called with an empty array');
+        }
         const randomIndex = Math.floor((new Generate()).getRandomNumber() * arr.length);
-        return arr[randomIndex];
+        return arr[randomIndex] as T;
     }
 
     /**
@@ -133,7 +136,9 @@ export class Utility {
         const shuffled = [...array]; // Create a copy to avoid mutating original
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = randomInt(0, i + 1);
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            // `as T` casts are safe because both indices are within bounds of `shuffled`
+            // — noUncheckedIndexedAccess can't see that without a manual assertion.
+            [shuffled[i], shuffled[j]] = [shuffled[j] as T, shuffled[i] as T];
         }
         return shuffled.slice(0, count);
     }
@@ -227,6 +232,9 @@ export class Utility {
     static convertToISO8601(dateTimeStr: string): string {
         // Parse the input date string
         const [date, time] = dateTimeStr.split(' ');
+        if (!date) {
+            throw new Error(`convertToISO8601: invalid input "${dateTimeStr}" — expected "MM/DD/YYYY HH:MM:SS".`);
+        }
         const [month, day, year] = date.split('/');
 
         // Create a new Date object
@@ -295,7 +303,7 @@ export class Utility {
      * @returns
      */
     static isStringNumber(value: string): boolean {
-        return !isNaN(parseFloat(value)) && isFinite(parseFloat(value));
+        return !Number.isNaN(Number(value)) && Number.isFinite(Number(value));
     }
 
     /**
@@ -309,9 +317,13 @@ export class Utility {
 
         const lowercasedArray = arr.map((value) => value.toLowerCase());
         for (let i = 1; i < lowercasedArray.length; i++) {
+            // Both indices are guaranteed to be in-bounds (i runs from 1 to length-1),
+            // but noUncheckedIndexedAccess can't infer that — assert non-null.
+            const prev = lowercasedArray[i - 1]!;
+            const curr = lowercasedArray[i]!;
             if (
-                (order === 'asc' && lowercasedArray[i - 1] > lowercasedArray[i]) ||
-                (order === 'desc' && lowercasedArray[i - 1] < lowercasedArray[i])
+                (order === 'asc' && prev > curr) ||
+                (order === 'desc' && prev < curr)
             ) {
                 return false;
             }
@@ -423,7 +435,7 @@ export class Utility {
      * @returns
      */
     static extractNumber(input: string): string {
-        const res = input.replace(/[^\d.]*/g, '');
+        const res = input.replaceAll(/[^\d.]*/g, '');
         return res;
     }
 
@@ -468,7 +480,9 @@ export class Utility {
      * @returns rounddown(5.2456) => 5.24
      */
     static roundDown(number: number, decimals: number = 3): number {
-        const significantDigits = (parseInt(number.toExponential().split('e-')[1])) ?? 0;
+        // `split('e-')[1]` can be undefined when the number isn't expressed in
+        // exponential form (e.g. 1.5 → "1.5"); fall back to "0" so parseInt yields 0.
+        const significantDigits = Number.parseInt(number.toExponential().split('e-')[1] ?? '0') || 0;
         const decimalsUpdated = (decimals ?? 0) + significantDigits - 1;
         decimals = Math.min(decimalsUpdated, number.toString().length);
         return (Math.floor(number * Math.pow(10, decimals)) / Math.pow(10, decimals));
@@ -482,7 +496,7 @@ export class Utility {
      * @returns
      */
     static replaceAll(str: string, find: string, replace: string): string {
-        return str.replace(new RegExp(this.escapeRegExp(find), 'g'), replace);
+        return str.replaceAll(new RegExp(this.escapeRegExp(find), 'g'), replace);
     }
 
     /**
@@ -491,7 +505,7 @@ export class Utility {
      * @returns
      */
     static escapeRegExp(str: string): string {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+        return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\\$&`); // $& means the whole matched string
     }
 
     /**
@@ -514,8 +528,8 @@ export class Utility {
      * @returns
      */
     static formatNumber(input: string, fractionDigits: number = 2): string {
-        const number = parseFloat(input.replace(/,/g, ''));
-        if (isNaN(number)) return input; // Handle invalid input
+        const number = Number.parseFloat(input.replaceAll(',', ''));
+        if (Number.isNaN(number)) return input; // Handle invalid input
 
         const formattedNumber = number.toLocaleString('en-US', {
             minimumFractionDigits: fractionDigits,
@@ -534,7 +548,7 @@ export class Utility {
     static replaceSpecialChars(description: string, listSpecialChars: { key: string; value: string }[]): string {
         let updatedDescription = description;
         for (const item of listSpecialChars) {
-            updatedDescription = updatedDescription.replace(item.key, item.value);
+            updatedDescription = updatedDescription.replaceAll(item.key, item.value);
         }
         return updatedDescription;
     }
@@ -546,13 +560,16 @@ export class Utility {
      * @returns
      */
     static nextDayOfFile(date: string, next: number = 1): string {
-        const yyyy = parseInt(date.substring(0, 4));
-        const MM = parseInt(date.substring(4, 6));
-        const dd = parseInt(date.substring(6, 8));
+        const yyyy = Number.parseInt(date.substring(0, 4));
+        const MM = Number.parseInt(date.substring(4, 6));
+        const dd = Number.parseInt(date.substring(6, 8));
         const myDate = new Date(yyyy, MM - 1, dd);// Month = 0-based in date Constructor
         myDate.setDate(myDate.getDate() + next);
         const res = myDate.toLocaleString('fr-CA').split(' ')[0];
-        return res;
+        // `split(' ')[0]` is `string | undefined` under noUncheckedIndexedAccess,
+        // but for any non-empty string it returns the first chunk — fall back to
+        // the original input as a defensive default.
+        return res ?? date;
     }
 
     /**
@@ -578,7 +595,7 @@ export class Utility {
     static parseFinancialString(value: string): string {
         // Remove any commas and dollar signs, handle negative values with parentheses
         const isNegative = value.includes('(');
-        const numericValue = parseFloat(value.replace(/[$,()]/g, ''));
+        const numericValue = Number.parseFloat(value.replaceAll(/[$,()]/g, ''));
         return isNegative ? `${-numericValue}` : `${numericValue}`;
     }
 
@@ -674,19 +691,6 @@ export class Utility {
     }
 
     /**
-     * Replace '#' with '0' for 'MID' type.
-     * @param type Type of the data (e.g., 'MID')
-     * @param value The value to decode
-     * @returns Decoded string
-     */
-    static replaceHashWithZero(type: string, value: string): string {
-        if (type === 'MID') {
-            return value.replace(/#/g, '0');
-        }
-        return value;
-    }
-
-    /**
      * indexOfSubArray
      * @param arr
      * @param sub
@@ -695,7 +699,9 @@ export class Utility {
     static indexOfSubArray(arr: any[][], sub: any[]): number {
         for (let i = 0; i < arr.length; i++) {
             const ele = arr[i];
-            if (this.arraysEqual(ele, sub))
+            // `arr[i]` is `any[] | undefined` under noUncheckedIndexedAccess; `i`
+            // is always in-bounds so a presence check is enough to narrow.
+            if (ele && this.arraysEqual(ele, sub))
                 return i;
         }
         return -1;
@@ -713,17 +719,24 @@ export class Utility {
         }
 
         const keys = data[keyRowIndex]; // Extract keys from the specified row
+        if (!keys) {
+            // Defensive: bounds were already checked above, but noUncheckedIndexedAccess
+            // can't see past the comparison.
+            throw new Error(`mapKeys: missing key row at index ${keyRowIndex}`);
+        }
         const results: Record<string, string>[] = [];
 
         for (let i = keyRowIndex + 1; i < data.length; i++) { // Start mapping from the next row
-            const rawLine = data[i].join(''); // Join the row into a string for checking
+            const row = data[i];
+            if (!row) continue;
+            const rawLine = row.join(''); // Join the row into a string for checking
 
             // Check each condition in the breakConditions array
             if (breakConditions.some(condition => condition(rawLine))) {
                 break;
             }
 
-            const values = data[i].map(value => value.replace(/["\r]/g, '').trim());
+            const values = row.map(value => value.replaceAll(/["\r]/g, '').trim());
             const rowObject: Record<string, string> = {};
 
             keys.forEach((key, index) => {
@@ -748,7 +761,11 @@ export class Utility {
             throw new Error('Row index is out of range');
         }
 
-        return data[rowIndex].map(value => value.replace(/["\r]/g, '').trim()); // Remove quotes and return row as an array
+        const row = data[rowIndex];
+        if (!row) {
+            throw new Error(`getRowAsColumns: missing row at index ${rowIndex}`);
+        }
+        return row.map(value => value.replaceAll(/["\r]/g, '').trim()); // Remove quotes and return row as an array
     }
 
     /**
@@ -758,9 +775,9 @@ export class Utility {
      *    otherwise => Verify format datetime. eg: hh:mm:ss (24h format)
      */
     static isDateFormat24h(date?: string): boolean {
-        if (!date) return false;
+        if (date === undefined) return false;
         else {
-            let regex: any;
+            let regex: RegExp;
             if (date.length > 8) {
                 regex = /^(0\d|1[0-2])\/(0\d|[12]\d|3[01])\/(19|20)\d{2} (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
             }

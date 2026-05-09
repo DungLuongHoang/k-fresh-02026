@@ -13,7 +13,14 @@ const productsByEnv: Record<string, Product> = readJsonFile(productsJsonPath);
  * @returns The product data object for the specified environment
  */
 export function getEnvProduct(
-  env: string = (process.env.ENV as ENV) || 'production',
+  env: string = (process.env['ENV'] as ENV) || 'production',
 ): Product {
-  return productsByEnv[env] ?? productsByEnv.production;
+  // `productsByEnv[env]` is `Product | undefined` under noUncheckedIndexedAccess.
+  // Falling through to `production` ensures we always return a real Product or
+  // throw a clear error instead of a silent `undefined`.
+  const product = productsByEnv[env] ?? productsByEnv['production'];
+  if (!product) {
+    throw new Error(`No product data for env "${env}" and no "production" fallback in products.json`);
+  }
+  return product;
 }

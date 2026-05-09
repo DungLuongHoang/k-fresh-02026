@@ -1,18 +1,18 @@
 import { test as baseTest, type Page } from '@playwright/test';
-import { LoginPage } from './login-page';
+import { LoginPage } from './ui/login-page';
 import { CommonPage } from './common-page';
-import { AddressBookPage } from './address-book-page';
-import { CheckoutPage } from './checkout-page';
-import { CompareProductsPage } from './compare-products-page';
-import { HomePage } from './home-page';
-import { CartPage } from './cart-page';
-import { MyOrdersPage } from './my-orders-page';
-import { ProductPage } from './product-page';
-import { ProfilePage } from './profile-page';
-import { RegisterPage } from './register-page';
-import { WishListPage } from './wish-list-page';
+import { AddressBookPage } from './ui/address-book-page';
+import { CheckoutPage } from './ui/checkout-page';
+import { CompareProductsPage } from './ui/compare-products-page';
+import { HomePage } from './ui/home-page';
+import { CartPage } from './ui/cart-page';
+import { MyOrdersPage } from './ui/my-orders-page';
+import { ProductPage } from './ui/product-page';
+import { ProfilePage } from './ui/profile-page';
+import { RegisterPage } from './ui/register-page';
+import { WishListPage } from './ui/wish-list-page';
 import { APIPage } from './api/api-page';
-import { AssertHelper } from './assert-helper-page';
+import { AssertHelper } from '@utilities/assert-helper';
 
 export const test = baseTest.extend<{
     loginPage: LoginPage;
@@ -118,6 +118,7 @@ export const test = baseTest.extend<{
         const instance = new APIPage(request);
         await use(instance);
     },
+    // eslint-disable-next-line no-empty-pattern
     assertHelper: async ({ }, use) => {
         const instance = new AssertHelper();
         await use(instance);

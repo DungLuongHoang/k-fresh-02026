@@ -1,0 +1,40 @@
+
+import { Page, Locator } from '@playwright/test';
+import { CommonLocators } from './common-locators';
+import { TRANSLATIONS } from '@translations/translations';
+import { Constants } from '@utilities/constants';
+
+export class LoginLocators extends CommonLocators {
+    constructor(page: Page) {
+        super(page);
+        this.initializeLocators();
+    }
+
+    protected initializeLocators(): void {
+        super.initializeLocators();
+
+        // Inputs
+        this.inputUsername = this.page.locator('input[name="username"]');
+        this.inputPassword = this.page.locator('input[name="password"]');
+
+        // Navigation & buttons
+        this.btnAppointment = this.page.getByRole('link', { name: 'Make Appointment' });
+        this.menuToggle = this.page.locator('#menu-toggle');
+        this.btnLogin = this.roleButtonName(TRANSLATIONS.labels[Constants.LANGUAGE].lblLogin);
+        this.btnLogout = this.text(TRANSLATIONS.labels[Constants.LANGUAGE].lblLogout);
+        this.btnSignIn = this.roleButtonName(TRANSLATIONS.labels[Constants.LANGUAGE].lblSignIn);
+    }
+
+    // Inputs
+    inputUsername!: Locator;
+    inputPassword!: Locator;
+
+    // Actions
+    btnAppointment!: Locator;
+    btnSignIn!: Locator;
+    btnLogin!: Locator;
+    btnLogout!: Locator;
+
+    // Misc
+    menuToggle!: Locator;
+}

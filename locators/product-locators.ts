@@ -70,7 +70,7 @@ export class ProductLocators extends CommonLocators {
   btnCloseToast!: (name: string) => Locator;
   toastBody!: Locator;
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     this.divSuccessAlert = this.page.getByRole('alert');
     this.firstProductImage = this.page

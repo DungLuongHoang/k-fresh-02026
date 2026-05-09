@@ -22,7 +22,7 @@ export class CartLocators extends CommonLocators {
   inputQuantity!: (productName: string) => Locator;
   cellTotal!: (productName: string) => Locator;
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     this.btnCart = this.page.locator('(//div[@class="cart-icon"])[1]');
     this.divCartDrawerMessage = this.page.locator(

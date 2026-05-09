@@ -8,7 +8,7 @@ export class MyOrdersLocators extends CommonLocators {
     this.locatorInitialization();
   }
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
   }
 }

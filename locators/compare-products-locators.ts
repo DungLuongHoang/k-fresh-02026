@@ -14,7 +14,7 @@ export class CompareProductsLocators extends CommonLocators {
   lblEmptyMessage!: Locator;
   lblRowName!: (rowName: string) => Locator;
 
-  locatorInitialization(): void {
+  override locatorInitialization(): void {
     super.locatorInitialization();
     this.table = this.page.locator('//table[contains(@class, "table-bordered")]').first();
     this.lblEmptyMessage = this.page.locator('//div[@id="content"]//p');
@@ -24,7 +24,7 @@ export class CompareProductsLocators extends CommonLocators {
       * Dynamically locates the "Remove" button on the UI.
       * If a product ID is provided, it targets the specific remove button associated with that product.
       * Otherwise, it returns a generic locator for any "Remove" button.
-      * 
+      *
       * @param id - (Optional) The unique identifier of the product to be removed.
       * @returns The Playwright Locator for the target "Remove" button.
       */

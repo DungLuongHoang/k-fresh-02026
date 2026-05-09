@@ -1,0 +1,57 @@
+
+import { Page } from '@playwright/test';
+import { AppointmentLocators } from '@locators/appointment-locators';
+import { CommonPage } from '../common-page';
+import { step } from '@utilities/logging';
+import { assertHelper } from '@utilities/assertions';
+import { Appointment } from '@models/appointment';
+
+export class AppointmentPage extends AppointmentLocators {
+
+  commonPage: CommonPage;
+
+  constructor(page: Page) {
+    super(page); // initializes locators
+    this.commonPage = new CommonPage(page); // shared helper for common actions
+  }
+
+  /**
+   * Navigate to Appointment Page
+   */
+  @step('Navigate to Appointment Page')
+  async goto(): Promise<void> {
+    await this.commonPage.navigate('/appointments');
+    await assertHelper.toBeVisible(this.btnCreateAppointment);
+  }
+
+  /**
+   * Create a new appointment
+   * @param appointment Appointment model containing details
+   */
+  @step('Create Appointment')
+  async createAppointment(appointment: Appointment): Promise<void> {
+    await this.commonPage.click(this.btnCreateAppointment);
+    await this.commonPage.fill(this.inputDate, appointment.date);
+    await this.commonPage.fill(this.inputTime, appointment.time);
+    await this.commonPage.fill(this.inputPatientName, appointment.patientName);
+    await this.commonPage.fill(this.inputDoctor, appointment.doctor);
+    if (appointment.notes) {
+      await this.commonPage.fill(this.inputNotes, appointment.notes);
+    }
+    await this.commonPage.click(this.btnSaveAppointment);
+
+    // Verify appointment success
+    await assertHelper.toBeVisible(this.successMessage);
+  }
+
+  /**
+   * Search for an appointment by patient name
+   * @param patientName
+   */
+  @step('Search Appointment')
+  async searchAppointment(patientName: string): Promise<void> {
+    await this.commonPage.fill(this.inputSearchPatient, patientName);
+    await this.commonPage.click(this.btnSearch);
+    await assertHelper.toBeVisible(this.searchResultRow);
+  }
+}

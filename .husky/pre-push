@@ -1,0 +1,13 @@
+npm run check:all
+
+# Check for .only in tests to prevent pushing debug code to CI/CD
+if grep -rn 'tests/' -e '\.only'; then
+  echo ""
+  echo "=================================================="
+  echo "🚨 CRITICAL ERROR PREVENTED PUSH 🚨"
+  echo "Detected '.only' left in the tests code!"
+  echo "Please remove it to avoid breaking the CI/CD pipeline."
+  echo "=================================================="
+  echo ""
+  exit 1
+fi

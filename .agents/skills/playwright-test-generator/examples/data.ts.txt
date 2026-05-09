@@ -1,0 +1,16 @@
+
+import { User } from '@models/user';
+import { Appointment } from '@models/appointment';
+
+export const validUser: User = {
+    username: 'John Doe',
+    password: 'ThisIsAPassword',
+};
+
+export const validAppointment: Appointment = {
+    facility: 'Tokyo CURA Healthcare Center',
+    applyForHospitalReadmission: true,
+    healthcareProgram: 'Medicare',
+    visitDate: '15/09/2025',
+    comment: 'Regular checkup and consultation'
+};
