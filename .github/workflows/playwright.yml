@@ -201,6 +201,7 @@ jobs:
   #
   # Site layout produced:
   #   /                                       ← qa env's QA Metrics Dashboard (canonical entry)
+  #   /qa-metrics-dashboard.pdf               ← canonical PDF (mirror of /qa/qa-metrics-dashboard.pdf)
   #   /qa/                                    ← same dashboard (live HTML, with "Open PDF" banner)
   #   /qa/qa-metrics-dashboard.pdf            ← PDF dashboard, rendered inline by the browser
   #   /qa/allure/                             ← Allure Report
@@ -281,16 +282,26 @@ jobs:
 
           # Root index = qa dashboard (canonical entry). If qa didn't run, fall
           # back to the first env that has a dashboard so the site is never empty.
+          # The PDF is mirrored alongside it so the banner's relative
+          # href="qa-metrics-dashboard.pdf" resolves at the site root too.
+          root_env=""
           if [ -f site/qa/index.html ]; then
-            cp site/qa/index.html site/index.html
+            root_env="qa"
           else
             for env in staging uat; do
               if [ -f "site/$env/index.html" ]; then
-                cp "site/$env/index.html" site/index.html
+                root_env="$env"
                 echo "▸ qa absent — using $env dashboard at root"
                 break
               fi
             done
+          fi
+          if [ -n "$root_env" ]; then
+            cp "site/$root_env/index.html" site/index.html
+            if [ -f "site/$root_env/qa-metrics-dashboard.pdf" ]; then
+              cp "site/$root_env/qa-metrics-dashboard.pdf" site/qa-metrics-dashboard.pdf
+              echo "✓ root PDF mirrored from $root_env"
+            fi
           fi
 
           # Last-resort landing if nothing produced a dashboard at all.
