@@ -25,7 +25,8 @@
     "typecheck": "tsc --noEmit",
     "check:all": "npm run linter && npm run typecheck",
     "fetch:defects": "tsx scripts/fetch-defects.ts",
-    "export:dashboard": "npm run fetch:defects --silent && tsx scripts/export-dashboard-pdf.ts"
+    "export:dashboard": "npm run fetch:defects --silent && tsx scripts/export-dashboard-pdf.ts",
+    "bootstrap:milestones": "bash scripts/bootstrap-milestones.sh"
   },
   "keywords": [
     "playwright",

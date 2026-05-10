@@ -298,3 +298,24 @@ Skills are loaded on demand by the agent — see each `SKILL.md` for trigger con
 ## License
 
 Educational and testing purposes only. See [`README.md`](../README.md) and [`SECURITY.md`](../SECURITY.md).
+
+---
+
+<!-- ────────────────────────────  Footer  ──────────────────────────── -->
+
+### Quick links
+
+| Project | Reports | Conventions | Learning |
+|---|---|---|---|
+| [Source on GitHub](https://github.com/khanhdodang/ai-qa-training) | [QA Dashboard (QA)](https://khanhdodang.github.io/ai-qa-training/qa/) | [Test tags](https://github.com/khanhdodang/ai-qa-training/blob/main/prompts/core/test-tags.md) | [Training curriculum](https://github.com/khanhdodang/ai-qa-training/tree/main/training) |
+| [Issues](https://github.com/khanhdodang/ai-qa-training/issues) · [Discussions](https://github.com/khanhdodang/ai-qa-training/discussions) | [QA Dashboard (UAT)](https://khanhdodang.github.io/ai-qa-training/uat/) | [Defect labels](https://github.com/khanhdodang/ai-qa-training/blob/main/prompts/core/defect-labels.md) | [Prompt library](https://github.com/khanhdodang/ai-qa-training/tree/main/prompts) |
+| [Pull requests](https://github.com/khanhdodang/ai-qa-training/pulls) | [QA Dashboard (Staging)](https://khanhdodang.github.io/ai-qa-training/staging/) | [POM generator](https://github.com/khanhdodang/ai-qa-training/blob/main/prompts/core/pom-generator.md) | [Agent skills](https://github.com/khanhdodang/ai-qa-training/tree/main/.agents/skills) |
+| [Security policy](https://github.com/khanhdodang/ai-qa-training/blob/main/SECURITY.md) | [Allure (QA)](https://khanhdodang.github.io/ai-qa-training/qa/allure/) | [PR template](https://github.com/khanhdodang/ai-qa-training/blob/main/.github/pull_request_template.md) | [Knowledge base](https://github.com/khanhdodang/ai-qa-training/tree/main/knowledge-base) |
+
+### Author · Maintainer
+
+**Khanh Do** &nbsp;·&nbsp; QA Architect &nbsp;·&nbsp; ✉️ <khanhdo.pmp@gmail.com> &nbsp;·&nbsp; [GitHub @khanhdodang](https://github.com/khanhdodang)
+
+> Built with **Playwright + TypeScript**, **Allure 3**, **Chart.js**, and a steady diet of AI-assisted refactors. Contributions, issues, and discussions welcome — see the [Contributing](#contributing) section above.
+
+<sub>© 2026 ai-qa-training · Educational use · Last updated from <code>main</code> · Found a typo? <a href="https://github.com/khanhdodang/ai-qa-training/edit/main/wiki/Home.md">Edit this page</a>.</sub>
