@@ -200,11 +200,12 @@ jobs:
   # non-main pushes never publish.
   #
   # Site layout produced:
-  #   /                       ← qa env's QA Metrics Dashboard (canonical entry)
-  #   /qa/                    ← same dashboard
-  #   /qa/allure/             ← Allure Report
-  #   /qa/playwright/         ← Playwright HTML Report
-  #   /staging/* and /uat/*   ← same triplet for the other matrix envs
+  #   /                                       ← qa env's QA Metrics Dashboard (canonical entry)
+  #   /qa/                                    ← same dashboard (live HTML, with "Open PDF" banner)
+  #   /qa/qa-metrics-dashboard.pdf            ← PDF dashboard, rendered inline by the browser
+  #   /qa/allure/                             ← Allure Report
+  #   /qa/playwright/                         ← Playwright HTML Report
+  #   /staging/* and /uat/*                   ← same quartet for the other matrix envs
   #
   # Prerequisite: Settings → Pages → Source must be set to "GitHub Actions"
   # once, manually. Otherwise every deploy 404s from the Pages API.
@@ -245,6 +246,7 @@ jobs:
           # the other two simply won't have artifacts.
           for env in qa staging uat; do
             dash_src="_artifacts/qa-metrics-dashboard-$env/artifacts/qa-metrics-dashboard.live.html"
+            pdf_src="_artifacts/qa-metrics-dashboard-$env/artifacts/qa-metrics-dashboard.pdf"
             allure_src="_artifacts/allure-report-$env"
             pw_src="_artifacts/playwright-report-$env"
 
@@ -254,6 +256,33 @@ jobs:
               echo "✓ $env dashboard copied"
             else
               echo "▸ $env dashboard not found — skipping"
+            fi
+            if [ -f "$pdf_src" ]; then
+              cp "$pdf_src" "site/$env/qa-metrics-dashboard.pdf"
+              echo "✓ $env PDF copied"
+              # Inject a sticky banner with a "View PDF" link into the live HTML
+              # so the PDF is one click away from the dashboard.
+              if [ -f "site/$env/index.html" ]; then
+                python3 - "$env" <<'PY'
+import pathlib, re, sys
+env = sys.argv[1]
+p = pathlib.Path(f"site/{env}/index.html")
+html = p.read_text(encoding="utf-8")
+banner = (
+    '<div style="position:sticky;top:0;background:#0a7;color:#fff;'
+    'padding:8px 14px;z-index:9999;font-family:system-ui,sans-serif;'
+    'font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.15)">'
+    '<a href="qa-metrics-dashboard.pdf" target="_blank" rel="noopener" '
+    'style="color:#fff;text-decoration:none;font-weight:600">'
+    '📄 Open PDF Dashboard</a>'
+    '</div>'
+)
+new_html, n = re.subn(r"(<body[^>]*>)", r"\1" + banner, html, count=1)
+if n == 0:
+    new_html = banner + html
+p.write_text(new_html, encoding="utf-8")
+PY
+              fi
             fi
             if [ -d "$allure_src" ]; then
               cp -R "$allure_src" "site/$env/allure"
