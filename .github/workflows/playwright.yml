@@ -260,28 +260,13 @@ jobs:
             if [ -f "$pdf_src" ]; then
               cp "$pdf_src" "site/$env/qa-metrics-dashboard.pdf"
               echo "✓ $env PDF copied"
-              # Inject a sticky banner with a "View PDF" link into the live HTML
-              # so the PDF is one click away from the dashboard.
+              # Inject a sticky banner with a "View PDF" link right after the
+              # opening <body> tag so the PDF is one click away from the live
+              # dashboard. Single-quoted in shell + double-quoted in HTML so we
+              # don't have to escape anything for sed.
               if [ -f "site/$env/index.html" ]; then
-                python3 - "$env" <<'PY'
-import pathlib, re, sys
-env = sys.argv[1]
-p = pathlib.Path(f"site/{env}/index.html")
-html = p.read_text(encoding="utf-8")
-banner = (
-    '<div style="position:sticky;top:0;background:#0a7;color:#fff;'
-    'padding:8px 14px;z-index:9999;font-family:system-ui,sans-serif;'
-    'font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.15)">'
-    '<a href="qa-metrics-dashboard.pdf" target="_blank" rel="noopener" '
-    'style="color:#fff;text-decoration:none;font-weight:600">'
-    '📄 Open PDF Dashboard</a>'
-    '</div>'
-)
-new_html, n = re.subn(r"(<body[^>]*>)", r"\1" + banner, html, count=1)
-if n == 0:
-    new_html = banner + html
-p.write_text(new_html, encoding="utf-8")
-PY
+                banner='<div style="position:sticky;top:0;background:#0a7;color:#fff;padding:8px 14px;z-index:9999;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.15)"><a href="qa-metrics-dashboard.pdf" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;font-weight:600">📄 Open PDF Dashboard</a></div>'
+                sed -i -E "s|(<body[^>]*>)|\1${banner}|" "site/$env/index.html"
               fi
             fi
             if [ -d "$allure_src" ]; then
