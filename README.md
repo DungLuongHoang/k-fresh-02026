@@ -29,6 +29,9 @@
 - [Tooling & Conventions](#tooling--conventions)
 - [Git Hooks (Husky)](#git-hooks-husky)
 - [Reporting](#reporting)
+  - [Playwright HTML](#playwright-html)
+  - [Allure Report 3](#allure-report-3)
+  - [Metrics & Reporting Guides](#metrics--reporting-guides)
 - [QA Metrics Dashboard](#qa-metrics-dashboard)
 - [Run-Result Notifications](#run-result-notifications)
 - [Test Tagging Convention](#test-tagging-convention)
@@ -36,6 +39,7 @@
 - [Knowledge Base](#knowledge-base)
 - [AI Prompt Library](#ai-prompt-library)
 - [Agent Skills](#agent-skills)
+- [Training Curriculum](#training-curriculum)
 - [Coding Standards](#coding-standards)
 - [Contributing](#contributing)
 - [Notes](#notes)
@@ -62,8 +66,23 @@
 | `.github/` | GitHub workflows and CI/CD configurations |
 | `.husky/` | Git hooks (`pre-commit`, `pre-push`, `commit-msg`, `post-merge`) |
 | `artifacts/` | Generated dashboard outputs (`qa-metrics-dashboard.pdf`, `.live.html`) — gitignored |
-| `data/` | Test data files |
-| `documents/` | Framework docs + manual test cases (POM, automation-framework/*, manual-testcases/) |
+| `assets/` | Static assets (images, icons, etc.) used by templates and docs |
+| `bashscripts/` | Shell utility scripts for local dev and CI operations |
+| `data/` | Test data files (typed TypeScript fixtures, Faker-driven generators) |
+| `documents/` | Framework docs, tool guides, and manual test cases — see sub-folders below |
+| `documents/automation-framework/` | Deep-dive specs: locators, pages, tests, assertions, utilities, interfaces, test-data |
+| `documents/ci/` | CI/CD guides: GitHub Actions, GitLab CI, Docker, shared conventions |
+| `documents/database-testing/` | Database testing patterns and migration safety guidelines |
+| `documents/jira/` | Jira integration and project management docs |
+| `documents/manual-testcases/` | Excel-ready manual test case documents |
+| `documents/metrics-reports/` | Tool guides for Allure, Grafana, Prometheus, ReportPortal + 64 QA Metrics reference |
+| `documents/mobile-testing/` | Mobile testing (iOS, Android, React Native) guidelines |
+| `documents/performance/` | Performance testing guides: k6, JMeter, Locust |
+| `documents/roi/` | ROI calculator and quarterly brief templates |
+| `documents/security/` | Security testing: OWASP ZAP, Burp Suite, toolchain reference |
+| `documents/test-management/` | Test management process and tooling docs |
+| `documents/typescript/` | TypeScript advanced patterns and best practices |
+| `documents/version-control/` | Git workflows, branching strategies, and PR conventions |
 | `knowledge-base/` | UI + API domain knowledge fed to AI prompts |
 | `locators/` | Pure locator definitions (no behavior) |
 | `models/` | Data models and interfaces |
@@ -74,6 +93,8 @@
 | `scripts/` | Operational scripts: `fetch-defects.ts`, `export-dashboard-pdf.ts` |
 | `templates/` | Source-of-truth dashboard HTML (`qa-metrics-dashboard.html`) |
 | `tests/` | UI + API test cases (`tests/ui/`, `tests/api/`, including `tests/api/test-security.spec.ts`) |
+| `training/` | Structured learning curriculum (Phases 0–8 + Track P) — see [Training Curriculum](#training-curriculum) |
+| `translations/` | i18n locale files for localization testing |
 | `utilities/` | Helper functions and reusable utilities |
 | `wiki/` | Source-controlled wiki pages (mirror of GitHub Wiki, including `QA-Metrics-Dashboard.md`) |
 | `allurerc.mjs` | Allure 3 configuration |
@@ -194,7 +215,7 @@ npm run codegen
 - **Test tags:** every test carries one priority + one severity tag (see [Test Tagging Convention](#test-tagging-convention)).
 - **Imports:** absolute path aliases for cross-folder imports, relative for siblings.
 
-See [`documents/OOP_POM_Documentation.md`](./documents/OOP_POM_Documentation.md) and [`documents/automation-framework/`](./documents/automation-framework/) for the full framework spec.
+See [`documents/oop-pom.md`](./documents/oop-pom.md) and [`documents/automation-framework/`](./documents/automation-framework/) for the full framework spec.
 
 ---
 
@@ -238,6 +259,19 @@ Or serve it on the fly with a live local server:
 ```bash
 npm run allure-serve
 ```
+
+### Metrics & Reporting Guides
+
+In-depth tool guides live under [`documents/metrics-reports/`](./documents/metrics-reports/):
+
+| Guide | Tool | Version | When to use |
+|---|---|---|---|
+| [`allure.md`](./documents/metrics-reports/allure.md) | Allure Report | v3.7.0 | Single-run drill-down reporting without a persistent server |
+| [`grafana.md`](./documents/metrics-reports/grafana.md) | Grafana | v13.0.x | Time-series dashboards for load tests and performance monitoring |
+| [`prometheus.md`](./documents/metrics-reports/prometheus.md) | Prometheus | v3.11.x | Time-series datastore — ingest and query k6 remote-write metrics |
+| [`report-portal.md`](./documents/metrics-reports/report-portal.md) | ReportPortal | v26.0.2 | Multi-run, cross-team trend dashboard alongside the in-repo QA Metrics Dashboard |
+
+The [`documents/metrics-reports/README.md`](./documents/metrics-reports/README.md) also contains the full **64 Essential QA Testing Metrics** reference (formulas, visualizations, worked examples) based on the Tricentis framework.
 
 ---
 
@@ -412,12 +446,35 @@ Reusable, progressive-disclosure skills under [`.agents/skills/`](./.agents/skil
 
 - E2E + API testing patterns (`e2e-testing`, `api-testing-mock`, `api-security-testing`, `api-fuzzer-generator`)
 - Test generation (`generate-testcase`, `generate-manual-testcase`, `playwright-test-generator`)
-- Test fixing & healing (`test-fixing`, `playwright-test-healer`)
+- Test fixing & healing (`test-fixing`, `selector-healing`, `flaky-test-triage`)
 - Evaluation (`llm-evaluation`, `agent-evaluation`, `advanced-evaluation`)
 - Workflow (`git-pr-workflows-git-workflow`, `git-pushing`, `git-advanced-workflows`)
 - Engineering quality (`typescript-expert`, `spec-to-code-compliance`, `data-quality-frameworks`)
+- Reporting & metrics (`executive-summary`, `quality-score`, `sprint-health-dashboard`, `trend-analysis`, `defect-insights`)
+- Security & performance (`api-security-testing`, `performance-testing`, `chaos-engineering`)
 
 Skills are loaded on demand by the agent — see each `SKILL.md` for trigger conditions and usage.
+
+---
+
+## Training Curriculum
+
+A structured, phase-based QA engineering curriculum lives under [`training/`](./training/):
+
+| Phase | Focus area |
+|---|---|
+| **Phase 0** — Foundations | Testing fundamentals, mindset, and tooling basics |
+| **Phase 1** — Toolkit | Environment setup, Git, npm, TypeScript essentials |
+| **Phase 2** — Playwright | Browser automation core: locators, actions, assertions |
+| **Phase 3** — Framework | POM architecture, fixtures, custom reporters |
+| **Phase 4** — API & Quality | REST/GraphQL testing, contract tests, data quality |
+| **Phase 5** — Scale | CI/CD pipelines, sharding, parallel execution, Docker |
+| **Phase 6** — AI-assisted QA | Prompt engineering, agent skills, LLM evaluation |
+| **Phase 7** — AI-era Leadership | QA strategy, team management, ROI, exec communication |
+| **Phase 8** — Quality Architecture | System-level quality design, chaos engineering, observability |
+| **Track P** — People & Management | Quality org charter, stakeholder alignment, career growth |
+
+See [`training/README.md`](./training/README.md) for the full curriculum map and recommended learning order.
 
 ---
 
