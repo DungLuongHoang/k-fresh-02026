@@ -157,12 +157,17 @@
       background: #F9FAFB;
     }
 
-    /* Floating dark/light theme toggle. Hidden in print so it never appears
-       in the PDF export. */
-    .theme-toggle {
-      position: fixed;
-      top: 16px;
-      right: 16px;
+    /* Page-level actions. Hidden in print so they never appear in the PDF export. */
+    .dashboard-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .dashboard-action {
       z-index: 50;
       display: inline-flex;
       align-items: center;
@@ -176,22 +181,30 @@
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
       transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
     }
 
-    .theme-toggle:hover {
+    .dashboard-action:hover {
       border-color: var(--info);
       color: var(--info);
     }
 
-    .theme-toggle:focus-visible {
+    .dashboard-action:focus-visible {
       outline: 2px solid var(--info);
       outline-offset: 2px;
     }
 
+    .dashboard-action-icon {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+    }
+
     @media print {
-      .theme-toggle {
+      .dashboard-actions {
         display: none !important;
       }
     }
@@ -956,12 +969,46 @@
 </head>
 
 <body>
-  <button id="themeToggle" type="button" class="theme-toggle" aria-label="Toggle dark/light theme" aria-pressed="false">
-    <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-    <span class="theme-toggle-label">Light mode</span>
-  </button>
-
   <div class="page">
+    <div class="dashboard-actions" aria-label="Dashboard actions">
+      <a id="pdfDownload" class="dashboard-action" href="qa-metrics-dashboard.pdf" download>
+        <svg class="dashboard-action-icon" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="docGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#4F46E5" />
+              <stop offset="100%" stop-color="#06B6D4" />
+            </linearGradient>
+
+            <linearGradient id="arrowGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#F59E0B" />
+              <stop offset="100%" stop-color="#EF4444" />
+            </linearGradient>
+          </defs>
+
+          <!-- Document -->
+          <path d="M7 3.75H14.5L19 8.25V20.25H7V3.75Z" fill="url(#docGradient)" opacity="0.12"
+            stroke="url(#docGradient)" stroke-width="1.8" stroke-linejoin="round" />
+
+          <!-- Fold -->
+          <path d="M14.5 3.75V8.25H19" stroke="url(#docGradient)" stroke-width="1.8" stroke-linejoin="round" />
+
+          <!-- Download Arrow -->
+          <path d="M12 10.5V15.5" stroke="url(#arrowGradient)" stroke-width="2" stroke-linecap="round" />
+
+          <path d="M9.8 13.5L12 15.8L14.2 13.5" stroke="url(#arrowGradient)" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+
+          <!-- Bottom Line -->
+          <path d="M9 18H15" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        Open PDF Dashboard
+      </a>
+      <button id="themeToggle" type="button" class="dashboard-action theme-toggle" aria-label="Toggle dark/light theme"
+        aria-pressed="false">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+        <span class="theme-toggle-label">Light mode</span>
+      </button>
+    </div>
 
     <!-- HERO -->
     <header class="hero">
@@ -2445,7 +2492,15 @@
       });
     }
 
-    /* ─── Theme toggle ─── */
+    /* ─── Dashboard actions ─── */
+    function bindPdfDownload() {
+      const link = document.getElementById('pdfDownload');
+      if (!link) return;
+
+      const fromTemplate = globalThis.location.pathname.includes('/templates/');
+      link.href = fromTemplate ? '../artifacts/qa-metrics-dashboard.pdf' : 'qa-metrics-dashboard.pdf';
+    }
+
     function syncThemeToggle() {
       const btn = document.getElementById('themeToggle');
       if (!btn) return;
@@ -2493,6 +2548,7 @@
       applyFooterYear();
       renderCharts();
       renderTables();
+      bindPdfDownload();
       bindThemeToggle();
       /* Signal Playwright that all charts have rendered */
       globalThis.__DASHBOARD_READY__ = true;
