@@ -266,7 +266,7 @@ jobs:
               # dashboard. Single-quoted in shell + double-quoted in HTML so we
               # don't have to escape anything for sed.
               if [ -f "site/$env/index.html" ]; then
-                banner='<div style="position:sticky;top:0;background:#0a7;color:#fff;padding:8px 14px;z-index:9999;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.15)"><a href="qa-metrics-dashboard.pdf" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;font-weight:600">📄 Open PDF Dashboard</a></div>'
+                banner='<div style="position:sticky;top:0;background:#0a7;color:#fff;padding:8px 14px;z-index:9999;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.15)"><a href="qa-metrics-dashboard.pdf" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;font-weight:600">📄 Download Metrics Dashboard</a></div>'
                 sed -i -E "s|(<body[^>]*>)|\1${banner}|" "site/$env/index.html"
               fi
             fi
