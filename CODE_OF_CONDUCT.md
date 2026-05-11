@@ -124,4 +124,9 @@ This Code of Conduct applies to:
 
 # Attribution
 
-This Code of Conduct is inspired by the :contentReference[oaicite:1]{index=1} and adapted for AI-powered QA engineering and automation collaboration projects.
+This Code of Conduct is adapted from the Contributor Covenant,
+version 2.1, available at:
+https://www.contributor-covenant.org/version/2/1/code_of_conduct/
+
+Additional adaptations were made for AI-powered QA engineering,
+automation testing, and collaborative software development projects.
