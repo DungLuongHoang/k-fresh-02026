@@ -12,6 +12,7 @@
 
 | File | What it covers | When to read |
 |---|---|---|
+| [`allure.md`](./allure.md) | Allure Report 3 v3.7.x + `allure-playwright` v3.7.x — local execution, CLI config, Awesome plugin, trace/video attachments | Engineering-level deep dives into single-run failures |
 | [`report-portal.md`](./report-portal.md) | ReportPortal v26.0.2 + `@reportportal/agent-js-playwright` v5.4.0 — server provisioning, Playwright reporter wiring, CI integration, comparison vs `list` / `html` / `junit` / `allure` | Adding the multi-run, cross-team trend dashboard alongside the in-repo `qa-metrics-dashboard.html` |
 
 ---
