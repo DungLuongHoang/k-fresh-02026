@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 import { step } from '@utilities/logging';
-import { Utility } from '@utilities/utility';
 /**
  * Assertion helper methods used across API and UI tests.
  *
@@ -9,7 +8,6 @@ import { Utility } from '@utilities/utility';
  * test files stay focused on behavior rather than assertion plumbing.
  */
 export class Assertions {
-    static readonly utility = new Utility();
 
     /**
      * Soft assertion to check if two values are equal.
@@ -681,7 +679,7 @@ export class Assertions {
 
             // Handle objects
             for (const key in subsetObj) {
-                if (Object.hasOwn(subsetObj, key)) {
+                if (Object.prototype.hasOwnProperty.call(subsetObj, key)) {
                     // If key doesn't exist or value doesn't match, return false
                     if (
                         !(key in supersetObj) ||
